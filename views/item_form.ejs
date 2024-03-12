@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= locals.title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <%- include('header') -%>
+    <div class="content">
+      <h3><%=locals.title%></h3>
+      <form method="POST" class="formContainer">
+        <label for="name">Name:</label>
+        <input type="text" name="name" />
+        <label for="description">Description:</label>
+        <textarea  name="description" rows="4" cols="50"></textarea>
+        <label for="price">Price:</label>
+        <input type="number" min="0" name="price" />
+        <label for="stock">Stock:</label>
+        <input type="number" min="0" name="stock" />
+        <label for="imageUrl">Image:
+          <input type="file" name="imageUrl" accept="image/*"/>
+        </label>
+
+        <label for="category">Category: 
+            <select name="category">
+                <%locals.categories.forEach(category => { %>
+                    <option value="<%=category.name%>"><%=category.name%></option>
+                <%})%>
+            </select>
+        </label>
+
+        <button type="submit" class="submitButton">Submit</button>
+      </form> 
+    </div>
+  </body>
+</html>

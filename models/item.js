@@ -8,10 +8,10 @@ const ItemSchema = new Schema({
   category: { type: Schema.ObjectId, ref: "Category", required: true },  
   price: { type: Schema.Types.Decimal128, required: true },
   stock: {type: Number, required: true},
-  image: {type: String, required:true}
+  imageUrl: {type: String, required:true}
 });
 
-// Virtual for this book instance URL.
+// Virtual for this item URL.
 ItemSchema.virtual("url").get(function () {
   return "/item/" + this._id;
 });

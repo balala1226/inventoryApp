@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <%- include('header') -%>
+    <div class="content">
+      <h3><%=locals.title%></h3>
+      <div class="categories_list_container">
+        <%locals.category_list.forEach(category => { %>
+          <a href="<%=category.url%>" class="category_container">
+            <p class="category_list_name"><%=category.name%></p>
+            <p class="category_list_description"><%=category.description%></p>
+          </a>
+        <%})%>
+      </div>
+    </div>
+  </body>
+</html>

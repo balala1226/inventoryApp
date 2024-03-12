@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= locals.title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <%- include('header') -%>
+    <div class="content">
+      <h3><%=locals.title%></h3>
+      <div class="item_list_container">
+        <%locals.item_list.forEach(item => { %>
+          <a href="<%=item.url%>" class="item_container">
+            <div class="item_container_image">
+              <img class="item_image" src="<%=item.imageUrl%>"/>
+            </div>
+            <p class="item_container_name"><%=item.name%></p>
+            <p>$<%=item.price%></p>
+            <p>Stock: <%=item.stock%></p>
+          </a>
+        <%})%>
+      </div>
+    </div>
+  </body>
+</html>

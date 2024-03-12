@@ -15,7 +15,7 @@ exports.index = asyncHandler(async (req, res, next) => {
   ]);
 
   res.render("index", {
-    title: "Local Library Home",
+    title: "Shopping App Inventory",
     items_count: numItems,
     categories_count: numCategories,
   });
@@ -26,7 +26,7 @@ exports.items = asyncHandler(async (req, res, next) => {
   const allItems = await Item.find({})
     .sort({ name: 1 })
     .populate("name")
-    .populate("image")
+    .populate("imageUrl")
     .populate("price")
     .populate("stock")
     .exec();
@@ -43,7 +43,7 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
     .populate("category")
     .populate("price")
     .populate("stock")
-    .populate("image")
+    .populate("imageUrl")
     .exec()
 
   if (item === null) {
@@ -59,7 +59,7 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
     category: item.category,
     price: item.price,
     stock: item.stock,
-    image: item.image,
+    imageUrl: item.imageUrl,
   });
 });
 
@@ -110,7 +110,7 @@ exports.item_create_post = [
         errorMessage: 'The product stock must be a decimal'
     })
     .escape(),
-  body("item_image", "Image must not be empty.")
+  body("imageUrl", "Image must not be empty.")
     .trim()
     .isLength({ min: 1 })
     .escape(),
@@ -121,13 +121,15 @@ exports.item_create_post = [
     // Extract the validation errors from a request.
     const errors = validationResult(req);
 
+    const imageUrl = req.file ? req.file.path.replace(/^public/, "") : "/images/blackShirt.webp";
+
     // Create a item object with escaped and trimmed data.
     const item = new Item({
       name: req.body.name,
       description: req.body.description,
       stock: req.body.stock,
       price: req.body.price,
-      item_image: req.body.item_image,
+      imageUrl: imageUrl,
       category: req.body.category,
     });
 
@@ -251,7 +253,7 @@ exports.item_update_post = [
             errorMessage: 'The product stock must be a decimal'
         })
         .escape(),
-    body("item_image", "Image must not be empty.")
+    body("imageUrl", "Image must not be empty.")
       .trim()
       .isLength({ min: 1 })
       .escape(),
@@ -267,7 +269,7 @@ exports.item_update_post = [
         name: req.body.name,
         description: req.body.description,
         stock: req.body.stock,
-        item_image: req.body.item_image,
+        imageUrl: req.body.imageUrl,
         category: req.body.category,
       });
   

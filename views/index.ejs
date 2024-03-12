@@ -7,8 +7,16 @@
   <body>
     <%- include('header') -%>
     <div class="content">
-      <h3>Welcome to your Shopping App Inventory</h3>
-      <p>This is the summary of products:</p>
+      <h3>Welcome to your <%=locals.title%></h3>
+      <div class="homeTexts">
+        <p>This is the summary of products:</p>
+        <p>Category Count: <%=locals.categories_count%></p>
+        <p>Total Items Count: <%=locals.items_count%></p>
+      </div>
+      <div class="addButtonsContainer">
+        <a class="addButton" href="/category/category_form">Add Category</a>
+        <a class="addButton" href="/item/item_form">Add Item</a>
+      </div>
     </div>
   </body>
 </html>
