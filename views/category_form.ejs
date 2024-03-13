@@ -15,6 +15,14 @@
         <textarea  name="category_description" rows="4" cols="50" value="<%=locals.category_description%>"><%=locals.category_description%></textarea>
         <button type="submit" class="submitButton">Submit</button>
       </form>
+      <%if(locals.errors != null){%>
+        <div class="errorContainer">
+          <h2>ERROR</h2>
+          <%locals.errors.forEach(error => {%>
+            <p><%=error.msg%></p>
+          <%})%>
+        </div>
+      <%}%>
     </div>
   </body>
 </html>

@@ -46,17 +46,22 @@ exports.category_create_get = asyncHandler(async (req, res, next) => {
 exports.category_create_post = [
   // Validate and sanitize fields.
   body("category_name")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Category name must be specified.")
-    .isAlphanumeric()
-    .withMessage("Category name has non-alphanumeric characters."),
+  .trim()
+  .isLength({ 
+    min: 1,
+    max: 100
+   })
+  .escape()
+  .withMessage("Category name must be specified."),
   body("category_description")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Category name must be specified."),
+  .trim()
+  .isLength({ 
+    min: 1,
+    max: 400
+   })
+  .escape()
+  .withMessage("Category name must be specified."),
+
 
   // Process request after validation and sanitization.
   asyncHandler(async (req, res, next) => {
@@ -73,8 +78,8 @@ exports.category_create_post = [
       // There are errors. Render form again with sanitized values/errors messages.
       res.render("category_form", {
         title: "Create Category",
-        category_name: category_name,
-        category_description: category_description,
+        category_name: category.name,
+        category_description: category.description,
         errors: errors.array(),
       });
       return;
@@ -128,7 +133,7 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
     return;
   } else {
     // Category has no itmes. Delete object and redirect to the list of Categories.
-    await Category.findByIdAndDelete(req.body.categoryid);
+    await Category.findByIdAndDelete(req.params.id);
     res.redirect("/category");
   }
 });
@@ -160,9 +165,7 @@ exports.category_update_post = [
     max: 100
    })
   .escape()
-  .withMessage("Category name must be specified.")
-  .isAlphanumeric()
-  .withMessage("Category name has non-alphanumeric characters."),
+  .withMessage("Category name must be specified."),
   body("category_description")
   .trim()
   .isLength({ 

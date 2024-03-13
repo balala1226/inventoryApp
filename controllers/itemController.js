@@ -5,6 +5,8 @@ const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler");
 
 const path = require("path");
+const fs = require("fs");
+
 const multer = require("multer");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -205,15 +207,13 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 
   const item = await Item.findById(req.params.id)
     .exec();
-
+  console.log("delete " +item);
   if (item === null) {
     // No results.
     res.redirect("/item");
   }
-  
-  deleteImage(item.imageUrl);
 
-  await item.findByIdAndDelete(req.body.id);
+  await Item.findByIdAndDelete(req.params.id);
   res.redirect("/item");
 });
 
