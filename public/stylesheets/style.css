@@ -44,6 +44,7 @@ header{
   align-items: center;
   padding-left: 5%;
   padding-right: 5%;
+  gap: 5%;
 }
 
 .item_list_container{
@@ -160,11 +161,12 @@ header{
   height: 50vh;
 }
 
-.addButtonsContainer{
+.buttonsContainer{
   display: flex;
   align-items: center;
   justify-content: space-evenly;
   width: 100%;
+  margin-bottom: 5%;
 }
 
 .addButton{
@@ -195,4 +197,9 @@ header{
 
 .submitButton:hover{
   cursor: pointer;
+}
+
+.errorContainer{
+  margin-top: 5%;
+  color: red;
 }

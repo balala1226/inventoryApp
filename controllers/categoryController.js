@@ -30,6 +30,7 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
 
   res.render("category_item_list", {
     title: category.name,
+    category: category,
     category_items: allItemsByCategory,
   });
 });
@@ -91,7 +92,7 @@ exports.category_create_post = [
 // Display Category delete form on GET.
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
   // Get details of category and all their items (in parallel)
-  const [category, allCategories] = await Promise.all([
+  const [category, allItemsByCategory] = await Promise.all([
     Category.findById(req.params.id).exec(),
     Item.find({ category: req.params.id }).exec(),
   ]);
@@ -101,10 +102,11 @@ exports.category_delete_get = asyncHandler(async (req, res, next) => {
     res.redirect("/item");
   }
 
+  console.log(allItemsByCategory.length + " test ");
   res.render("category_delete", {
     title: "Delete Category",
     category: category,
-    category_items: allCategories,
+    category_items: allItemsByCategory,
   });
 });
 
@@ -141,7 +143,11 @@ exports.category_update_get = asyncHandler(async (req, res, next) => {
     return next(err);
   }
 
-  res.render("category_form", { title: "Update Category", category: category });
+  res.render("category_form", { 
+    title: "Update Category",
+    category_name: category.name, 
+    category_description: category.description
+  });
 });
 
 // Handle Category update on POST.
@@ -157,7 +163,7 @@ exports.category_update_post = [
   .withMessage("Category name must be specified.")
   .isAlphanumeric()
   .withMessage("Category name has non-alphanumeric characters."),
-body("category_description")
+  body("category_description")
   .trim()
   .isLength({ 
     min: 1,
@@ -174,7 +180,8 @@ body("category_description")
     // Create Category object with escaped and trimmed data
     const category = new Category({
       name: req.body.category_name,
-      description: req.body.category_description
+      description: req.body.category_description,
+      _id: req.params.id
     });
 
     if (!errors.isEmpty()) {
@@ -188,7 +195,7 @@ body("category_description")
       return;
     } else {
       // Data from form is valid. Update the record.
-      await Category.findByIdAndUpdate(req.params.id, category);
+      await Category.findByIdAndUpdate(req.params.id, category, {});
       // Redirect to new category record.
       res.redirect(category.url);
     }

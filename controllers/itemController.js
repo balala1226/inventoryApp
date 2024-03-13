@@ -4,6 +4,29 @@ const Category = require("../models/category");
 const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler");
 
+const path = require("path");
+const multer = require("multer");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+function deleteImage(filePath) {
+  // Construct the full path to the image file
+  const fullPath = "public" + filePath;
+  // Check if the file exists
+  if (fs.existsSync(fullPath) && !filePath.includes("-default.")) {
+    // File exists, delete it
+    fs.unlinkSync(fullPath);
+  }
+}
+
 exports.index = asyncHandler(async (req, res, next) => {
   // Get details of books, book instances, authors and genre counts (in parallel)
   const [
@@ -54,12 +77,8 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
   }
 
   res.render("item_detail", {
+    item: item,
     title: item.name,
-    description: item.description,
-    category: item.category,
-    price: item.price,
-    stock: item.stock,
-    imageUrl: item.imageUrl,
   });
 });
 
@@ -71,6 +90,12 @@ exports.item_create_get = asyncHandler(async (req, res, next) => {
   res.render("item_form", {
     title: "Create New Item",
     categories: allCategories,
+    item_name: "",
+    description: "",
+    item_category: allCategories[0],
+    price: 1.0,
+    stock: 1,
+    imageUrl: ""
   });
 });
 
@@ -84,7 +109,7 @@ exports.item_create_post = [
     }
     next();
   },
-
+  upload.single("image"),
   // Validate and sanitize fields.
   body("name", "Name must not be empty.")
     .trim()
@@ -97,7 +122,7 @@ exports.item_create_post = [
   body("price", "Price must not be empty.")
       .trim()
       .isLength({ min: 1 })
-      .isDecimal({
+      .isFloat({
           min: 0,
           errorMessage: 'The product stock must be a decimal'
       })
@@ -139,16 +164,15 @@ exports.item_create_post = [
       // Get all authors and genres for form.
       const allCategories = await Category.find().sort({ name: 1 }).exec();
 
-      // Mark our selected genres as checked.
-      for (const category of allCategories) {
-        if (item.category.indexOf(category._id) > -1) {
-            category.checked = "true";
-        }
-      }
       res.render("item_form", {
         title: "Create Item",
-        category: allCategories,
-        item: item,
+        categories: allCategories,
+        item_name: item.name,
+        description: item.description,
+        item_category: item.category,
+        price: item.price,
+        stock: item.stock,
+        imageUrl: item.imageUrl,
         errors: errors.array(),
       });
     } else {
@@ -169,7 +193,7 @@ exports.item_delete_get = asyncHandler(async (req, res, next) => {
     res.redirect("/item");
   }
 
-  res.render("item_delete", {
+  res.render("item_detail_delete", {
     title: "Delete Item",
     item: item
   });
@@ -186,6 +210,8 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
     // No results.
     res.redirect("/item");
   }
+  
+  deleteImage(item.imageUrl);
 
   await item.findByIdAndDelete(req.body.id);
   res.redirect("/item");
@@ -195,7 +221,7 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 exports.item_update_get = asyncHandler(async (req, res, next) => {
   // Get item, categories for form.
   const [item, allCategories] = await Promise.all([
-    Item.findById(req.params.id).exec(),
+    Item.findById(req.params.id).populate("category").exec(),
     Category.find().sort({ name: 1 }).exec(),
   ]);
 
@@ -206,15 +232,15 @@ exports.item_update_get = asyncHandler(async (req, res, next) => {
     return next(err);
   }
 
-  // Mark our selected genres as checked.
-  allCategories.forEach((category) => {
-    if (item.category.includes(category._id)) category.checked = "true";
-  });
-
   res.render("item_form", {
     title: "Update Item",
     categories: allCategories,
-    item: item,
+    item_name: item.name,
+    description: item.description,
+    item_category: item.category,
+    price: item.price,
+    stock: item.stock,
+    imageUrl: item.imageUrl
   });
 });
 
@@ -227,7 +253,8 @@ exports.item_update_post = [
       }
       next();
     },
-  
+
+    upload.single("image"),
     // Validate and sanitize fields.
     body("name", "Name must not be empty.")
       .trim()
@@ -248,7 +275,7 @@ exports.item_update_post = [
     body("price", "Price must not be empty.")
         .trim()
         .isLength({ min: 1 })
-        .isDecimal({
+        .isFloat({
             min: 0,
             errorMessage: 'The product stock must be a decimal'
         })
@@ -263,32 +290,35 @@ exports.item_update_post = [
     asyncHandler(async (req, res, next) => {
       // Extract the validation errors from a request.
       const errors = validationResult(req);
+
+      const imageUrl = req.file ? req.file.path.replace(/^public/, "") : "/images/blackShirt.webp";
   
       // Create an item object with escaped and trimmed data.
       const item = new Item({
         name: req.body.name,
         description: req.body.description,
         stock: req.body.stock,
-        imageUrl: req.body.imageUrl,
+        price: req.body.price,
+        imageUrl: imageUrl,
         category: req.body.category,
+        _id: req.params.id
       });
   
       if (!errors.isEmpty()) {
         // There are errors. Render form again with sanitized values/error messages.
   
-        // Get all authors and genres for form.
+        // Get all categories for form.
         const allCategories = await Category.find().sort({ name: 1 }).exec();
   
-        // Mark our selected genres as checked.
-        for (const category of allCategories) {
-          if (item.category.indexOf(category._id) > -1) {
-              category.checked = "true";
-          }
-        }
         res.render("item_form", {
-          title: "Create Item",
-          category: allCategories,
-          item: item,
+          title: "Update Item",
+          categories: allCategories,
+          item_name: item.name,
+          description: item.description,
+          item_category: item.category,
+          price: item.price,
+          stock: item.stock,
+          imageUrl: item.imageUrl,
           errors: errors.array(),
         });
       } else {

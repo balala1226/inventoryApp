@@ -10,27 +10,39 @@
       <h3><%=locals.title%></h3>
       <form method="POST" class="formContainer">
         <label for="name">Name:</label>
-        <input type="text" name="name" />
+        <input type="text" name="name" value="<%=locals.item_name%>"/>
         <label for="description">Description:</label>
-        <textarea  name="description" rows="4" cols="50"></textarea>
+        <textarea  name="description" rows="4" cols="50"  value="<%=locals.description%>"><%=locals.description%></textarea>
         <label for="price">Price:</label>
-        <input type="number" min="0" name="price" />
+        <input type="number" min="0" name="price" step="0.01" value="<%=locals.price%>"/>
         <label for="stock">Stock:</label>
-        <input type="number" min="0" name="stock" />
+        <input type="number" min="0" name="stock" value="<%=locals.stock%>"/>
         <label for="imageUrl">Image:
           <input type="file" name="imageUrl" accept="image/*"/>
         </label>
 
         <label for="category">Category: 
             <select name="category">
-                <%locals.categories.forEach(category => { %>
-                    <option value="<%=category.name%>"><%=category.name%></option>
+                <%locals.categories.forEach(category => {%>
+                    <%if(category.name == locals.item_category.name){%>
+                      <option value="<%=category._id%>" selected><%=category.name%></option>
+                    <%} else {%>
+                      <option value="<%=category._id%>"><%=category.name%></option>
+                    <%}%>
                 <%})%>
             </select>
         </label>
 
         <button type="submit" class="submitButton">Submit</button>
-      </form> 
+      </form>
+      <%if(locals.errors != null){%>
+        <div class="errorContainer">
+          <h2>ERROR</h2>
+          <%locals.errors.forEach(error => {%>
+            <p><%=error.msg%></p>
+          <%})%>
+        </div>
+      <%}%>
     </div>
   </body>
 </html>

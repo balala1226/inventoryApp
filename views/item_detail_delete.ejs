@@ -22,10 +22,11 @@
             <p >Stock: <%=locals.item.stock%></p>
           </div>
         </div>
-        <div class="buttonsContainer">
-          <a class="addButton" href="<%=locals.item.url+"/update"%>">Edit Item</a>
-          <a class="addButton" href="<%=locals.item.url+"/delete"%>">Delete Item</a>
-        </div>
+        <form method="POST" class="formContainer">
+          <div class="buttonsContainer">
+            <button type="submit" class="submitButton">Confirm Delete</button>
+          </div>
+        </form>
       </div>
     </div>
   </body>

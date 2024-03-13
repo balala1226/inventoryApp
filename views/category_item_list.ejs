@@ -8,6 +8,10 @@
     <%- include('header') -%>
     <div class="content">
       <h3><%=locals.title%></h3>
+      <div class="buttonsContainer">
+        <a class="addButton" href="<%=locals.category.url+"/update"%>">Edit Category</a>
+        <a class="addButton" href="<%=locals.category.url+"/delete"%>">Delete Category</a>
+      </div>
       <div class="item_list_container">
         <%locals.category_items.forEach(item => { %>
           <a href="<%=item.url%>" class="item_container">
